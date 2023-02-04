@@ -1,3 +1,4 @@
+
 import os
 from random import randrange
 from time import time
@@ -31,6 +32,7 @@ def send_mesage(user_id, message, keyboard=None):
     'random_id': randrange(10**7)
   }
   if keyboard is not None:
+    
     param['keyboard'] = keyboard.get_keyboard()
   vk.method('messages.send', param)
 
@@ -50,21 +52,24 @@ def main():
   coreBot()
 
 def coreBot():
-  try:
-    for event in longpoll.listen():
-      if event.type == VkEventType.MESSAGE_NEW:
-        if event.to_me:
+  
+   for event in longpoll.listen():
+     if event.type == VkEventType.MESSAGE_NEW:
+       if event.to_me:
+        try:
           request = event.text.lower()
+          
           if request == 'привет':
-            dataSerchParms[event.user_id] = vkUserSerch.get_default_param(event.user_id) 
-            if vkUserSerch.get_name(event.user_id):
+            dataSerchParms[event.user_id] = vkUserSerch.get_user_data(event.user_id) 
+            if  dataSerchParms[event.user_id][4]:
               send_mesage(event.user_id,
-                          f'Добро пожаловать, {vkUserSerch.get_name(event.user_id)}')
+                          f'Добро пожаловать, {dataSerchParms[event.user_id][4]}')
               send_mesage(
                   event.user_id,
                   'Мы будем предлагать тебе кандидатов на основании твоих предпочтений.'
                   ' Изменить условия поиска можно отправив команду "Условия поиска"'
                 )
+              #
               keyboard = VkKeyboard(inline=True)
               keyboard.add_button('Искать', color=VkKeyboardColor.PRIMARY)
               keyboard.add_button('Условия поиска', color=VkKeyboardColor.PRIMARY)
@@ -102,22 +107,26 @@ def coreBot():
             keyboard = VkKeyboard(inline=True)
             keyboard.add_button('В избранное', color=VkKeyboardColor.PRIMARY)
             keyboard.add_button('Дальше', color=VkKeyboardColor.PRIMARY)
+            
+            username = vkUserSerch.get_user_data(photo_param[0]) 
             send_mesage(event.user_id,
-              f'{vkUserSerch.get_name(photo_param[0])}  - vk.com/id{photo_param[0]}',
+              f'{username[4]}  - vk.com/id{photo_param[0]}',
               keyboard)
           elif request == 'условия поиска':
-            if event.user_id not in dataSerchParms:
-              dataSerchParms[event.user_id] = vkUserSerch.get_default_param(event.user_id)
+            #if event.user_id not in dataSerchParms:
+              #dataSerchParms[event.user_id] = vkUserSerch.get_user_data(event.user_id)
             keyboard = VkKeyboard(inline=True)
             keyboard.add_button('1', color=VkKeyboardColor.PRIMARY)
             keyboard.add_button('2', color=VkKeyboardColor.PRIMARY)
             keyboard.add_button('3', color=VkKeyboardColor.PRIMARY)
             keyboard.add_button('4', color=VkKeyboardColor.PRIMARY)
+            
             send_mesage(
               event.user_id,
               'Задать условия поиска: \n1 - Пол\n2 - Статус\n3 - Возраст\n4 - Город',
               keyboard)
             vkUserSerch.clear_search_params(event.user_id)
+            
 
             for event in longpoll.listen():
               if event.type == VkEventType.MESSAGE_NEW:
@@ -198,6 +207,7 @@ def coreBot():
                           keyboard.add_button('Искать', color=VkKeyboardColor.PRIMARY)
                   
                           send_mesage(event.user_id, 'Сохранили условия', keyboard)
+
                           break
                     break
           elif request == 'в избранное':
@@ -226,9 +236,10 @@ def coreBot():
               ' искать пару.\n"Избранное" - показать список избранных пользователей'
             )
           else:
-            send_mesage(event.user_id, 'Искуственый интелек бота не смог распознать комманду. Попробуйте еще раз')
-  except requests.exceptions.RequestException:
-    time.sleep(10) 
+            send_mesage(event.user_id, 'Искуственный интеллект бота не смог распознать комманду. Попробуйте еще раз')
+        except Exception as e:
+            print("Error! " + str(e))
+            send_mesage(event.user_id, 'Ошибка ввода данных VK. Попробуйте еще раз. '+ str(e))
 
 if __name__ == '__main__':
   main()
