@@ -70,29 +70,16 @@ class VKapi:
             self.make_user_list(self.search_params[customer_id], customer_id)
             return self.get_photo(self.search_params[customer_id], customer_id)
 
-    def get_name(self, user_id):
-        url = 'https://api.vk.com/method/users.get'
-        params = {
-            'access_token': self.token,
-            'v': '5.131',
-            'user_ids': user_id
-        }
-        response = self.get_response(url, params)
-        if response:
-            return response['response'][0]['first_name']
-        else:
-            return False
-
-    def get_default_param(self, user_id):
+    def get_user_data(self, user_id):
         url = 'https://api.vk.com/method/users.get'
         params = {
             'access_token': self.token,
             'v': '5.131',
             'user_ids': user_id,
-            'fields': 'sex, city, bdate, age'
+            'fields': 'sex, city, bdate, age, first_name'
         }
         response = self.get_response(url, params)
-        
+        print(response)
         if response:
             search_params = []
             
@@ -111,6 +98,7 @@ class VKapi:
             age = date.today().year - int(user_bd_year[2])
             search_params.append(age)
             search_params.append(response['response'][0]['city']['title'])
+            search_params.append(response['response'][0]['first_name'])
             return search_params
         else:
             return False
