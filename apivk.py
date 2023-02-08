@@ -79,7 +79,7 @@ class VKapi:
             'fields': 'sex, city, bdate, age, first_name'
         }
         response = self.get_response(url, params)
-        print(response)
+        
         if response:
             search_params = []
             
