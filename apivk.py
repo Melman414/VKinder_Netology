@@ -45,6 +45,16 @@ class VKapi:
                 'v': '5.131'
             }
             response = self.get_response(url, params)
+            try:
+                 checkresponse = response['response']['items']
+            except KeyError as e:
+                print("response not have field: " + str(e))
+
+            try:
+                 checkresponse = response['response']['items'][0]
+            except IndexError as e:
+                 print("response not have date: " + str(e))
+
             if response:
                 count_photo = len(response['response']['items'])
                 owner_id = response['response']['items'][0]['owner_id']
@@ -79,10 +89,16 @@ class VKapi:
             'fields': 'sex, city, bdate, age, first_name'
         }
         response = self.get_response(url, params)
-        
+        try:
+            checkresponse = response['response']
+        except KeyError as e:
+            print("response not have field: " + str(e))
+        try:
+            checkresponse = response['response'][0]
+        except IndexError as e:
+            print("response not have date: " + str(e))
         if response:
             search_params = []
-            
             if response['response'][0]['sex'] == 1:
                 search_params.append(2)
             elif response['response'][0]['sex'] == 2:
@@ -105,6 +121,7 @@ class VKapi:
 
     def clear_search_params(self, customer_id):
         self.list_users[customer_id] = []
+
     def make_user_list(self, search_params, customer_id):
         list_users = []
         url_find_user = 'https://api.vk.com/method/users.search'
@@ -122,6 +139,15 @@ class VKapi:
             'hometown': search_params[3]
         }
         response_find_user = self.get_response(url_find_user, params_find_user)
+        try:
+            checkresponse = response_find_user['response']['items']
+        except KeyError as e:
+            print("response not have field: " + str(e))
+        try:
+            checkresponse = response_find_user['response']['items'][0]
+        except IndexError as e:
+            print("response not have date: " + str(e))
+        
         if response_find_user:
             for item in response_find_user['response']['items']:
                 if not item['is_closed']:
